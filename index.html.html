@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gamified MBA Quiz</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    background: rgba(0,0,0,0.4);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.option-btn {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    background-color: #ffffff;
+    color: #000;
+}
+
+.option-btn:hover {
+    background-color: #ddd;
+}
+
+.correct {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.wrong {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+#progressBar {
+    width: 100%;
+    background-color: #ccc;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+#progress {
+    height: 20px;
+    width: 0%;
+    background-color: #28a745;
+    border-radius: 10px;
+}
+
+#timer {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Global Strategy Quiz Challenge</h1>
+    <div id="timer">Time Left: 60s</div>
+    <div id="progressBar"><div id="progress"></div></div>
+    <h2 id="question"></h2>
+    <div id="options"></div>
+    <h3 id="score"></h3>
+    <button onclick="restartQuiz()">Restart Quiz</button>
+</div>
+
+<script>
+const quizData = [
+  {question: "In Geocentric approach each subsidiary function as an independent autonomous company",
+   options: ["True","False"], answer: 0},
+  {question: "In this approach, uniqueness of the market is accepted and appreciated",
+   options: ["Regiocentric","Polycentric","Geocentric"], answer: 1},
+  {question: "Markets are distinct, yet capable of being grouped according to location. What approach is it?",
+   options: ["Regiocentric","Polycentric","Geocentric"], answer: 0},
+  {question: "Nike is an example of Geocentric approach",
+   options: ["Polycentric","Regiocentric","Geocentric"], answer: 2},
+  {question: "One way to categorise global expansion options is where the products are being produced-home market or host market",
+   options: ["True","False"], answer: 0},
+  {question: "When your home currency is stronger then host country, your products will be expensive when exported",
+   options: ["True","False"], answer: 0},
+  {question: "The concept of complements is important element for Technological analysis for international expansion",
+   options: ["True","False"], answer: 0},
+  {question: "Cadbury's celebrations is a prime example of Dual adaptation strategy",
+   options: ["True","False"], answer: 0},
+  {question: "Parallel importing will flourish when a product is in short supply or when producers attempt to set high prices",
+   options: ["True","False"], answer: 0},
+  {question: "Coca Cola is a good example of Franchise model of global expansion",
+   options: ["True","False"], answer: 1}
+];
+
+let currentQuestion = 0;
+let score = 0;
+let timeLeft = 60;
+let timerInterval;
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = "Time Left: " + timeLeft + "s";
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            showResults();
+        }
+    }, 1000);
+}
+
+function loadQuestion() {
+    const q = quizData[currentQuestion];
+    document.getElementById("question").innerText = q.question;
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    q.options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.innerText = option;
+        btn.classList.add("option-btn");
+        btn.onclick = () => checkAnswer(index);
+        optionsDiv.appendChild(btn);
+    });
+
+    updateProgress();
+}
+
+function checkAnswer(selected) {
+    const correct = quizData[currentQuestion].answer;
+    const buttons = document.querySelectorAll(".option-btn");
+
+    buttons.forEach((btn, index) => {
+        if (index === correct) btn.classList.add("correct");
+        if (index === selected && index !== correct) btn.classList.add("wrong");
+        btn.disabled = true;
+    });
+
+    if (selected === correct) score++;
+
+    setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }, 1000);
+}
+
+function updateProgress() {
+    const progressPercent = (currentQuestion / quizData.length) * 100;
+    document.getElementById("progress").style.width = progressPercent + "%";
+}
+
+function showResults() {
+    clearInterval(timerInterval);
+    document.getElementById("question").innerText = "Quiz Completed!";
+    document.getElementById("options").innerHTML = "";
+    document.getElementById("score").innerText =
+        "Your Score: " + score + " / " + quizData.length;
+}
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    timeLeft = 60;
+    document.getElementById("score").innerText = "";
+    startTimer();
+    loadQuestion();
+}
+
+startTimer();
+loadQuestion();
+</script>
+
+</body>
+</html>
